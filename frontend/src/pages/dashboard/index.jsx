@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from '../components/Layout/Header';
-import Footer from '../components/Layout/Footer';
-import ClientDashboard from '../components/Dashboard/ClientDashboard';
+import Header from '../../components/Layout/Header';
+import Footer from '../../components/Layout/Footer';
+import ClientDashboard from '../../components/Dashboard/ClientDashboard';
 
 export default function Dashboard() {
   return (

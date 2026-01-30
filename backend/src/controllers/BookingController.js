@@ -4,6 +4,7 @@
  */
 
 const BookingService = require('../services/BookingService');
+const db = require('../db');
 
 class BookingController {
   /**
@@ -11,30 +12,32 @@ class BookingController {
    */
   async createBooking(req, res) {
     try {
-      const { userId, date, services, address, notes, cep, photos, location, metragem, frequencia, urgencia } = req.body;
+      const { userId, serviceId, date, time, address, phone, price, notes } = req.body;
 
-      // Validar dados
-      if (!userId || !date || !services || !address) {
-        return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+      if (!userId || !serviceId || !date || !time || !address || !phone) {
+        return res.status(400).json({ error: 'Campos obrigatórios faltando: userId, serviceId, date, time, address, phone' });
       }
 
-      // Verificar disponibilidade da data
-      const isAvailable = await this.checkAvailability(date);
-      if (!isAvailable) {
-        return res.status(400).json({ error: 'Data não disponível' });
-      }
+      // Persistir no banco (DB abstraction: Postgres via DATABASE_URL or SQLite local)
+      const result = await db.run(
+        `INSERT INTO bookings (user_id, service_id, date, time, address, phone, price, notes, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+        userId,
+        serviceId,
+        date,
+        time,
+        address,
+        phone,
+        price || 0,
+        notes || '',
+        'pending'
+      );
 
-      // Criar agendamento via service (encapsula validações e cálculos)
-      const bookingData = { userId, date, services, address, notes, cep, photos, location, metragem, frequencia, urgencia };
-      const booking = await BookingService.createBooking(bookingData);
+      // Buscar agendamento criado
+      const bookingId = result.lastID || result.rows?.[0]?.id;
+      const booking = await db.get('SELECT * FROM bookings WHERE id = ?', bookingId);
 
-      // Persistir no banco quando implementado
-      // await Database.Bookings.insert(booking);
-
-      // Disparar automações (ex.: envio de confirmação)
-      // await AutomationService.executeBookingAutomations(booking);
-
-      res.status(201).json({ success: true, booking });
+      res.status(201).json({ success: true, booking, message: 'Agendamento criado com sucesso!' });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

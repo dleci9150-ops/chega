@@ -3,8 +3,26 @@
  * Valida dados das requisições
  */
 
+// ✅ CORRIGIDO: Função auxiliar para validar email
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// ✅ CORRIGIDO: Função auxiliar para validar telefone brasileiro
+const isValidPhone = (phone) => {
+  const phoneRegex = /^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/;
+  return phoneRegex.test(phone.replace(/\s/g, ''));
+};
+
+// ✅ CORRIGIDO: Função auxiliar para validar CEP brasileiro
+const isValidCEP = (cep) => {
+  const cepRegex = /^\d{5}-?\d{3}$/;
+  return cepRegex.test(cep);
+};
+
 const validateBookingData = (req, res, next) => {
-  const { date, services, address } = req.body;
+  const { date, services, address, email, phone, cep } = req.body;
 
   const errors = [];
 
@@ -12,8 +30,21 @@ const validateBookingData = (req, res, next) => {
   if (!services || services.length === 0) errors.push('Pelo menos um serviço é obrigatório');
   if (!address) errors.push('Endereço é obrigatório');
 
+  // ✅ CORRIGIDO: Validações adicionais
+  if (email && !isValidEmail(email)) errors.push('Email inválido');
+  if (phone && !isValidPhone(phone)) errors.push('Telefone inválido (use formato: (XX) XXXXX-XXXX)');
+  if (cep && !isValidCEP(cep)) errors.push('CEP inválido (use formato: XXXXX-XXX)');
+
   if (date && new Date(date) <= new Date()) {
     errors.push('Data deve ser no futuro');
+  }
+
+  // ✅ CORRIGIDO: Validar data fechada (não permite domingo)
+  if (date) {
+    const bookingDate = new Date(date);
+    if (bookingDate.getDay() === 0) {
+      errors.push('Desculpe, não agendamos aos domingos');
+    }
   }
 
   if (errors.length > 0) {

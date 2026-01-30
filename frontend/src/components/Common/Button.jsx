@@ -1,13 +1,13 @@
 import React from 'react';
 
-export const Button = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  onClick, 
+function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  onClick,
   disabled = false,
-  className = '' 
-}) => {
+  className = ''
+}) {
   const baseStyles = 'font-semibold rounded-lg transition focus:outline-none';
   
   const variants = {
@@ -33,6 +33,9 @@ export const Button = ({
       {children}
     </button>
   );
+}
+
+export default Button;
 };
 
 export default Button;

@@ -55,24 +55,8 @@ async function getDb() {
   ensureDir();
   const db = new sqlite3.Database(DB_PATH);
   const pdb = promisifyDb(db);
-  await pdb.exec(`
-    CREATE TABLE IF NOT EXISTS bookings (
-      id TEXT PRIMARY KEY,
-      userId TEXT,
-      date TEXT,
-      services TEXT,
-      address TEXT,
-      cep TEXT,
-      notes TEXT,
-      photos TEXT,
-      location TEXT,
-      finalPrice REAL,
-      status TEXT,
-      createdAt TEXT,
-      cancellationPolicy TEXT,
-      achievements TEXT
-    );
-  `);
+  // As migrations devem criar as tabelas (ver backend/src/db/migrations.sql)
+  // Aqui apenas retornamos a instância promisificada do DB.
   return pdb;
 }
 

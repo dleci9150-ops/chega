@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export const PriceCalculator = ({ services = [], date = null }) => {
+const PriceCalculator = ({ services = [], date = null }) => {
   const [metragem, setMetragem] = useState(0);
   const [frequencia, setFrequencia] = useState('unica');
   const [urgencia, setUrgencia] = useState('normal');

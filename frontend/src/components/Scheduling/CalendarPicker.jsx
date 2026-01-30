@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export const CalendarPicker = ({ onDateSelected, unavailableDates = [] }) => {
+const CalendarPicker = ({ onDateSelected, unavailableDates = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 

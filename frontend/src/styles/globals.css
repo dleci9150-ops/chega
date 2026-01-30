@@ -12,7 +12,7 @@
 }
 
 /* Dark mode variables */
-.[data-theme="dark"]{
+[data-theme="dark"]{
   --bg: 17 24 39;
   --text: 226 232 240;
   --muted: 148 163 184;

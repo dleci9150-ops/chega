@@ -6,22 +6,34 @@
 class WhatsAppService {
   /**
    * Enviar mensagem WhatsApp
+   * ✅ CORRIGIDO: Integração real com Twilio
    */
   async sendMessage(phoneNumber, message) {
     try {
-      // Implementar com Twilio ou Meta Business API
-      // const twilio = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
-      // await twilio.messages.create({
-      //   body: message,
-      //   from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
-      //   to: `whatsapp:${phoneNumber}`
-      // });
-      
-      console.log(`Mensagem WhatsApp enviada para ${phoneNumber}`);
-      return true;
+      // ✅ CORRIGIDO: Ativar integração Twilio se credenciais existirem
+      if (process.env.TWILIO_SID && process.env.TWILIO_TOKEN) {
+        const twilio = require('twilio')(
+          process.env.TWILIO_SID,
+          process.env.TWILIO_TOKEN
+        );
+        
+        const result = await twilio.messages.create({
+          body: message,
+          from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+          to: `whatsapp:${phoneNumber}`
+        });
+        
+        console.log(`✅ Mensagem WhatsApp enviada para ${phoneNumber}`);
+        return { success: true, messageId: result.sid };
+      } else {
+        // Modo mock se não tiver credenciais
+        console.warn('⚠️ Twilio não configurado. Configure TWILIO_SID, TWILIO_TOKEN, TWILIO_WHATSAPP_NUMBER');
+        console.log(`[MOCK] WhatsApp para ${phoneNumber}: ${message}`);
+        return { success: true, mock: true };
+      }
     } catch (error) {
-      console.error('Erro ao enviar WhatsApp:', error);
-      return false;
+      console.error('❌ Erro ao enviar WhatsApp:', error.message);
+      throw new Error('Falha ao enviar mensagem WhatsApp');
     }
   }
 

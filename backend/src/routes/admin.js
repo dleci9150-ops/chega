@@ -5,25 +5,89 @@
 
 const express = require('express');
 const router = express.Router();
+const db = require('../db');
 
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 
 /**
- * Dashboard - Métricas
+ * Dashboard - Métricas (com dados reais do banco)
  */
-router.get('/dashboard', authenticateToken, authorizeRole(['admin']), (req, res) => {
+router.get('/dashboard', authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
+    const bookingsRes = await db.all('SELECT COUNT(*) as count FROM bookings');
+    const totalBookings = bookingsRes[0]?.count || 0;
+
+    const revenueRes = await db.all(
+      `SELECT SUM(COALESCE(price, 0)) as total FROM bookings WHERE status = 'completed'`
+    );
+    const revenue = parseFloat(revenueRes[0]?.total || 0).toFixed(2);
+
+    const usersRes = await db.all('SELECT COUNT(*) as count FROM users');
+    const customers = usersRes[0]?.count || 0;
+
+    const todayRes = await db.all(
+      `SELECT COUNT(*) as count FROM bookings WHERE date = DATE('now')`
+    );
+    const todaysScheduled = todayRes[0]?.count || 0;
+
     const metrics = {
-      totalBookings: 342,
-      revenue: 45280.50,
-      customers: 156,
+      totalBookings,
+      revenue: parseFloat(revenue),
+      customers,
       teamMembers: 12,
       satisfaction: 4.7,
-      todaysScheduled: 8,
+      todaysScheduled,
       pendingReviews: 23,
     };
     res.json({ success: true, metrics });
   } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Listar todos os agendamentos (admin)
+ */
+router.get('/bookings', authenticateToken, authorizeRole(['admin']), async (req, res) => {
+  try {
+    const bookings = await db.all(
+      `SELECT b.*, s.name as service_name, u.name as user_name
+       FROM bookings b 
+       LEFT JOIN services s ON b.service_id = s.id 
+       LEFT JOIN users u ON b.user_id = u.id 
+       ORDER BY b.created_at DESC`
+    );
+
+    res.json({ success: true, bookings: bookings || [], total: bookings?.length || 0 });
+  } catch (error) {
+    console.error('List bookings error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Atualizar status de booking
+ */
+router.put('/bookings/:bookingId', authenticateToken, authorizeRole(['admin']), async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body;
+
+    if (!['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'Status inválido' });
+    }
+
+    await db.run(
+      `UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+      status,
+      bookingId
+    );
+
+    const booking = await db.get('SELECT * FROM bookings WHERE id = ?', bookingId);
+    res.json({ success: true, booking });
+  } catch (error) {
+    console.error('Update booking error:', error);
     res.status(500).json({ error: error.message });
   }
 });

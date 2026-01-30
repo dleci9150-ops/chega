@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-export const Navigation = ({ currentPage }) => {
+function Navigation({ currentPage }) {
   const navItems = [
     { name: 'Home', path: '/', icon: '🏠' },
     { name: 'Serviços', path: '/servicos', icon: '🧹' },
@@ -28,6 +28,6 @@ export const Navigation = ({ currentPage }) => {
       ))}
     </nav>
   );
-};
+}
 
 export default Navigation;

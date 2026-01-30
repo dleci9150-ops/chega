@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export const ServiceSelector = ({ onServiceSelected, services = [] }) => {
+const ServiceSelector = ({ onServiceSelected, services = [] }) => {
   const [selectedServices, setSelectedServices] = useState([]);
 
   const defaultServices = [

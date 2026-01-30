@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const ReviewCard = ({ author, rating, text, date, service }) => {
+function ReviewCard({ author, rating, text, date, service }) {
   const renderStars = (rating) => {
     return '⭐'.repeat(Math.floor(rating));
   };
@@ -33,6 +33,6 @@ export const ReviewCard = ({ author, rating, text, date, service }) => {
       </div>
     </div>
   );
-};
+}
 
 export default ReviewCard;

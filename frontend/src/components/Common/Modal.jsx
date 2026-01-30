@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Modal = ({ isOpen, title, children, onClose, actions = [] }) => {
+function Modal({ isOpen, title, children, onClose, actions = [] }) {
   if (!isOpen) return null;
 
   return (
@@ -43,6 +43,6 @@ export const Modal = ({ isOpen, title, children, onClose, actions = [] }) => {
       </div>
     </div>
   );
-};
+}
 
 export default Modal;
