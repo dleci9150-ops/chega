@@ -1,7 +1,8 @@
 // Configuração
 const API_BASE = 'http://localhost:3001/api';
 let authToken = localStorage.getItem('authToken');
-let currentUser = null;
+let refreshToken = localStorage.getItem('refreshToken');
+let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 let socket = null;
 let revenueChart = null;
 
@@ -10,38 +11,75 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 App inicializado');
   
   if (authToken) {
-    // Já está logado, ir para home
     verifyToken();
   } else {
-    // Mostrar login
     showPage('login');
   }
 
-  // Setup upload drag and drop
   setupUploadDragDrop();
-
-  // Connect Socket.io
   connectSocket();
 });
+
+// Reconnect socket with new token
+function reconnectSocket() {
+  if (socket) {
+    try { socket.disconnect(); } catch (e) {}
+    socket = null;
+  }
+  connectSocket();
+}
 
 // Socket.io
 function connectSocket() {
   socket = io(API_BASE.replace('/api', ''), {
-    auth: {
-      token: authToken
-    }
+    auth: { token: authToken }
   });
 
   socket.on('connect', () => console.log('✅ Socket conectado'));
+  socket.on('disconnect', (reason) => console.log('Socket desconectado:', reason));
   socket.on('new-message', (data) => {
     const messagesDiv = document.getElementById('chatMessages');
-    if (messagesDiv) {
-      addChatMessage(data);
+    if (messagesDiv) addChatMessage(data);
+  });
+  socket.on('user-joined', (data) => console.log('👤 Usuário entrou:', data.user));
+}
+
+// Wrapper fetch com refresh token automático
+async function apiFetch(path, options = {}) {
+  const headers = options.headers || {};
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+  options.headers = headers;
+
+  let res = await fetch(`${API_BASE}${path}`, options);
+
+  if (res.status === 401 && refreshToken) {
+    // tentar renovar
+    try {
+      const r = await fetch(`${API_BASE}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken })
+      });
+      const data = await r.json();
+      if (r.ok && data.success && data.accessToken) {
+        authToken = data.accessToken;
+        localStorage.setItem('authToken', authToken);
+        // reconectar socket com novo token
+        reconnectSocket();
+        // refazer requisição original
+        headers['Authorization'] = `Bearer ${authToken}`;
+        options.headers = headers;
+        res = await fetch(`${API_BASE}${path}`, options);
+        return res;
+      }
+    } catch (e) {
+      console.warn('Falha ao renovar token:', e);
     }
-  });
-  socket.on('user-joined', (data) => {
-    console.log('👤 Usuário entrou:', data.user);
-  });
+    logout();
+    throw new Error('Unauthorized');
+  }
+
+  return res;
 }
 
 // AUTENTICAÇÃO
@@ -63,16 +101,18 @@ async function login() {
 
     const data = await res.json();
     if (data.success) {
-      authToken = data.token;
+      authToken = data.tokens?.accessToken || data.accessToken || null;
+      refreshToken = data.tokens?.refreshToken || data.refreshToken || null;
       currentUser = data.user;
       localStorage.setItem('authToken', authToken);
-      localStorage.setItem('currentUser', JSON.stringify(data.user));
-      
-      document.getElementById('userInfo').textContent = `👤 ${data.user.name}`;
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      document.getElementById('userInfo').textContent = `👤 ${currentUser.name}`;
+      reconnectSocket();
       showPage('home');
       loadDashboard();
     } else {
-      alert(data.message || 'Erro ao fazer login');
+      alert(data.error || data.message || 'Erro ao fazer login');
     }
   } catch (error) {
     console.error('Erro no login:', error);
@@ -80,24 +120,28 @@ async function login() {
   }
 }
 
-function logout() {
+async function logout() {
+  try {
+    await apiFetch('/auth/logout', { method: 'POST' });
+  } catch (e) {}
   authToken = null;
+  refreshToken = null;
   currentUser = null;
   localStorage.removeItem('authToken');
+  localStorage.removeItem('refreshToken');
   localStorage.removeItem('currentUser');
+  if (socket) try { socket.disconnect(); } catch (e) {}
   showPage('login');
 }
 
 async function verifyToken() {
   try {
-    const res = await fetch(`${API_BASE}/auth/verify`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch('/auth/verify', { method: 'GET' });
     if (res.ok) {
       const data = await res.json();
       currentUser = data.user;
-      document.getElementById('userInfo').textContent = `👤 ${data.user.name}`;
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      document.getElementById('userInfo').textContent = `👤 ${currentUser.name}`;
       showPage('home');
       loadDashboard();
     } else {
@@ -167,10 +211,7 @@ async function loadDashboard() {
   if (!authToken) return;
 
   try {
-    const res = await fetch(`${API_BASE}/bookings/${currentUser.id}`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/bookings/${currentUser.id}`, { method: 'GET' });
     const bookings = await res.json();
     const upcomingTable = document.getElementById('upcomingBookings');
     
@@ -196,10 +237,7 @@ async function loadBookings() {
   if (!authToken) return;
 
   try {
-    const res = await fetch(`${API_BASE}/bookings/${currentUser.id}`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/bookings/${currentUser.id}`, { method: 'GET' });
     const bookings = await res.json();
     const tbody = document.querySelector('#bookingsList tbody');
     
@@ -242,12 +280,9 @@ async function createBooking() {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/bookings`, {
+    const res = await apiFetch('/bookings', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         date,
         time,
@@ -295,10 +330,10 @@ function getStatusColor(status) {
 // AVALIAÇÕES PÚBLICAS
 async function loadPublicReviews() {
   try {
-    const res = await fetch(`${API_BASE}/public-reviews`);
+    const res = await apiFetch('/public-reviews', { method: 'GET' });
     const reviews = await res.json();
 
-    const statsRes = await fetch(`${API_BASE}/reviews-stats/public`);
+    const statsRes = await apiFetch('/reviews-stats/public', { method: 'GET' });
     const stats = await statsRes.json();
 
     document.getElementById('avgRating').textContent = (stats.average_rating || 0).toFixed(1);
@@ -334,10 +369,7 @@ async function loadAdminDashboard() {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/admin/dashboard`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch('/admin/dashboard', { method: 'GET' });
     const data = await res.json();
     
     // Atualizar cards
@@ -416,10 +448,7 @@ async function loadStaffDashboard() {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/staff/dashboard`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch('/staff/dashboard', { method: 'GET' });
     const data = await res.json();
 
     document.getElementById('staffTotalEarnings').textContent = `R$ ${(data.totalEarnings || 0).toFixed(2)}`;
@@ -463,11 +492,7 @@ async function loadStaffDashboard() {
 
 async function confirmBooking(bookingId) {
   try {
-    const res = await fetch(`${API_BASE}/staff/bookings/${bookingId}/confirm`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/staff/bookings/${bookingId}/confirm`, { method: 'POST' });
     if (res.ok) {
       alert('✅ Agendamento confirmado!');
       loadStaffDashboard();
@@ -479,11 +504,7 @@ async function confirmBooking(bookingId) {
 
 async function completeBooking(bookingId) {
   try {
-    const res = await fetch(`${API_BASE}/staff/bookings/${bookingId}/complete`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/staff/bookings/${bookingId}/complete`, { method: 'POST' });
     if (res.ok) {
       alert('✅ Agendamento concluído!');
       loadStaffDashboard();
@@ -498,10 +519,7 @@ async function loadChatBookings() {
   if (!authToken) return;
 
   try {
-    const res = await fetch(`${API_BASE}/bookings/${currentUser.id}`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/bookings/${currentUser.id}`, { method: 'GET' });
     const bookings = await res.json();
     const select = document.getElementById('chatBookingSelect');
     
@@ -564,10 +582,7 @@ function addChatMessage(data) {
 // FOTOS
 async function loadPhotoBookings() {
   try {
-    const res = await fetch(`${API_BASE}/bookings/${currentUser.id}`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/bookings/${currentUser.id}`, { method: 'GET' });
     const bookings = await res.json();
     const select = document.getElementById('photoBookingSelect');
     
@@ -585,10 +600,7 @@ async function loadBookingPhotos() {
   document.getElementById('photoSection').style.display = 'block';
 
   try {
-    const res = await fetch(`${API_BASE}/bookings/${bookingId}/photos`, {
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/bookings/${bookingId}/photos`, { method: 'GET' });
     const photos = await res.json();
     const gallery = document.getElementById('bookingGallery');
     
@@ -646,9 +658,8 @@ async function uploadPhotos(e) {
   }
 
   try {
-    const res = await fetch(`${API_BASE}/bookings/${bookingId}/photos`, {
+    const res = await apiFetch(`/bookings/${bookingId}/photos`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${authToken}` },
       body: formData
     });
 
@@ -666,11 +677,7 @@ async function deletePhoto(photoId) {
   if (!confirm('Tem certeza que deseja deletar esta foto?')) return;
 
   try {
-    const res = await fetch(`${API_BASE}/photos/${photoId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${authToken}` }
-    });
-
+    const res = await apiFetch(`/photos/${photoId}`, { method: 'DELETE' });
     if (res.ok) {
       alert('✅ Foto deletada!');
       loadBookingPhotos();
