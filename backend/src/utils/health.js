@@ -3,7 +3,20 @@ const path = require('path');
 const fs = require('fs');
 const logger = require('./logger');
 
-const DB_PATH = path.join(__dirname, '..', '..', 'backend_data', 'limpeza.db');
+// Resolve DB path from several common locations to be resilient in dev containers
+const candidatePaths = [
+  path.join(__dirname, '..', '..', 'backend_data', 'limpeza.db'),
+  path.join(__dirname, '..', 'backend_data', 'limpeza.db'),
+  path.join(__dirname, '..', '..', '..', 'backend_data', 'limpeza.db'),
+  path.join(__dirname, '..', '..', '..', '..', 'backend_data', 'limpeza.db'),
+  path.join(__dirname, '..', '..', '..', '..', '..', 'backend_data', 'limpeza.db')
+];
+
+let DB_PATH = candidatePaths.find(p => fs.existsSync(p));
+if (!DB_PATH) {
+  // default fallback (may not exist)
+  DB_PATH = path.join(__dirname, '..', '..', 'backend_data', 'limpeza.db');
+}
 
 async function checkDatabase() {
   return new Promise((resolve) => {
