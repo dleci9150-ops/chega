@@ -21,7 +21,10 @@ const path = require('path');
 const { initCsrf } = require('./middleware/csrf');
 
 const app = express();
-app.set('trust proxy', true);
+// ✅ CORRIGIDO: trust proxy configurado apenas se em produção com proxy real
+if (process.env.NODE_ENV === 'production' && process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1); // 1 = primeiro proxy
+}
 const server = http.createServer(app);
 
 // ✅ CORRIGIDO: Socket.io CORS whitelist (não aberto para "*")
