@@ -48,6 +48,7 @@ const AdminController = require('../controllers/AdminController');
 const StaffController = require('../controllers/StaffController');
 const PhotosController = require('../controllers/PhotosController');
 const PublicReviewsController = require('../controllers/PublicReviewsController');
+const ChatController = require('../controllers/ChatController');
 const AuthController = require('../controllers/AuthController');
 const NotificationsController = require('../controllers/NotificationsController');
 const HealthCheckController = require('../controllers/HealthCheckController');
@@ -335,6 +336,31 @@ router.get('/newsletter/stats', authenticateToken, authorizeRole(['admin']), (re
 // ===== 2FA (Two-Factor Authentication) =====
 const twoFactorRoutes = require('./twoFactorRoutes');
 router.use('/auth/2fa', twoFactorRoutes);
+
+// ===== CHAT (Encrypted Messaging) =====
+router.post('/chat/messages', authenticateToken, (req, res) => {
+  ChatController.sendEncryptedMessage(req, res);
+});
+
+router.get('/chat/messages/:conversationId', authenticateToken, (req, res) => {
+  ChatController.getEncryptedMessages(req, res);
+});
+
+router.post('/chat/upload-encrypted', authenticateToken, upload.single('file'), (req, res) => {
+  ChatController.uploadEncryptedFile(req, res);
+});
+
+router.get('/chat/download-encrypted/:fileId', authenticateToken, (req, res) => {
+  ChatController.downloadEncryptedFile(req, res);
+});
+
+router.get('/chat/message-hash/:messageId', authenticateToken, (req, res) => {
+  ChatController.getMessageHash(req, res);
+});
+
+router.delete('/chat/conversations/:conversationId', authenticateToken, (req, res) => {
+  ChatController.deleteConversation(req, res);
+});
 
 // ===== ADMIN DASHBOARD =====
 const adminRoutes = require('./adminRoutes');

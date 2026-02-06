@@ -25,7 +25,10 @@
     "e2e:report": "playwright show-report",
     "2fa:setup": "node -e \"const TwoFactorService = require('./backend/src/services/TwoFactorService.js'); console.log(JSON.stringify(TwoFactorService.generateTOTPSecret('test@example.com'), null, 2))\"",
     "invoices:cleanup": "node -e \"const InvoiceService = require('./backend/src/services/InvoiceService.js'); InvoiceService.deleteOldInvoices(30).then(() => process.exit(0))\"",
-    "invoices:stats": "node -e \"const InvoiceService = require('./backend/src/services/InvoiceService.js'); console.log(JSON.stringify(InvoiceService.getStats(), null, 2))\""
+    "invoices:stats": "node -e \"const InvoiceService = require('./backend/src/services/InvoiceService.js'); console.log(JSON.stringify(InvoiceService.getStats(), null, 2))\"",
+    "crypto:generate-key": "node -e \"const crypto = require('crypto'); console.log('Chave 256-bit (hex):', crypto.randomBytes(32).toString('hex'))\"",
+    "crypto:audit": "node -e \"const ChatEncryptionService = require('./backend/src/services/ChatEncryptionService.js'); console.log(ChatEncryptionService)\"",
+    "migration:chat": "node src/database/migrations/002_create_chat_messages_table.js"
   },
   "dependencies": {
     "@sentry/node": "^7.84.0",
