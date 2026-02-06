@@ -49,6 +49,7 @@ const StaffController = require('../controllers/StaffController');
 const PhotosController = require('../controllers/PhotosController');
 const PublicReviewsController = require('../controllers/PublicReviewsController');
 const ChatController = require('../controllers/ChatController');
+const DatabaseOptimizationController = require('../controllers/DatabaseOptimizationController');
 const AuthController = require('../controllers/AuthController');
 const NotificationsController = require('../controllers/NotificationsController');
 const HealthCheckController = require('../controllers/HealthCheckController');
@@ -360,6 +361,51 @@ router.get('/chat/message-hash/:messageId', authenticateToken, (req, res) => {
 
 router.delete('/chat/conversations/:conversationId', authenticateToken, (req, res) => {
   ChatController.deleteConversation(req, res);
+});
+
+// ===== DATABASE OPTIMIZATION =====
+router.get('/db/query-report', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.getQueryReport(req, res);
+});
+
+router.get('/db/slow-queries', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.getSlowQueries(req, res);
+});
+
+router.post('/db/analyze-query', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.analyzeQuery(req, res);
+});
+
+router.get('/db/suggest-indices', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.suggestIndices(req, res);
+});
+
+router.get('/db/index-usage', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.analyzeIndexUsage(req, res);
+});
+
+router.get('/db/integrity-check', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.validateIntegrity(req, res);
+});
+
+router.post('/db/vacuum', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.vacuumDatabase(req, res);
+});
+
+router.post('/db/optimize', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.optimizeTables(req, res);
+});
+
+router.get('/db/table-sizes', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.getTableSizes(req, res);
+});
+
+router.get('/db/stats', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.getDatabaseStats(req, res);
+});
+
+router.post('/db/reset-stats', authenticateToken, authorizeRole(['admin']), (req, res) => {
+  DatabaseOptimizationController.resetStatistics(req, res);
 });
 
 // ===== ADMIN DASHBOARD =====
