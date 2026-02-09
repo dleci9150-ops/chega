@@ -93,10 +93,31 @@ class PaymentIntegrationService {
   }
 
   /**
-   ✅ NOVO: Processar webhook do Stripe
+   ✅ NOVO: Processar webhook do Stripe com validação HMAC
    */
-  async processWebhook(event) {
+  async processWebhook(event, signature = null, rawBody = null) {
     try {
+      // Validar signature do Stripe se fornecida
+      if (signature && rawBody) {
+        try {
+          const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_demo');
+          const validatedEvent = stripe.webhooks.constructEvent(
+            rawBody instanceof Buffer ? rawBody : Buffer.from(rawBody),
+            signature,
+            process.env.STRIPE_WEBHOOK_SECRET || 'whsec_test_demo'
+          );
+          // Se validação passou, usar o evento validado
+          Object.assign(event, validatedEvent);
+        } catch (err) {
+          if (process.env.NODE_ENV === 'production') {
+            logger.error('Invalid webhook signature', { error: err.message });
+            throw new Error('Invalid webhook signature');
+          }
+          // Em desenvolvimento, permitir sem validação
+          logger.warn('Webhook signature validation skipped in development', { error: err.message });
+        }
+      }
+
       const { type, data, source } = event;
 
       if (type === 'charge.succeeded') {

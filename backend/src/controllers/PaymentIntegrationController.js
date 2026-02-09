@@ -41,9 +41,14 @@ router.post('/pix', async (req, res) => {
 // POST /api/payments/webhook
 router.post('/webhook', async (req, res) => {
   try {
-    const result = await PaymentIntegrationService.processWebhook(req.body);
+    // Validar assinatura do Stripe (importante para segurança)
+    const signature = req.headers['stripe-signature'];
+    const rawBody = req.rawBody || JSON.stringify(req.body);
+    
+    const result = await PaymentIntegrationService.processWebhook(req.body, signature, rawBody);
     res.json(result);
   } catch (error) {
+    console.error('Webhook error:', error);
     res.status(400).json({ error: error.message });
   }
 });

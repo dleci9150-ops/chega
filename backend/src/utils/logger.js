@@ -22,7 +22,6 @@ const myFormat = printf(({ level, message, timestamp, stack, requestId, userId, 
 // ✅ NOVO: Formato JSON para estruturado
 const jsonFormat = format.combine(
   format.timestamp(),
-  format.errors({ stack: true }),
   format.json()
 );
 
