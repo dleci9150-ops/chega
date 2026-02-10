@@ -12,16 +12,16 @@ class TwilioService {
   }
 
   initializeClient() {
+    const logger = require('../utils/logger');
     if (!this.accountSid || !this.authToken) {
-      console.warn('⚠️  Twilio não configurado: TWILIO_ACCOUNT_SID ou TWILIO_AUTH_TOKEN ausente. SMS/WhatsApp será desabilitado.');
-      return;
+      logger.warn('Twilio not configured: missing TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN');\n      return;
     }
 
     try {
       this.client = twilio(this.accountSid, this.authToken);
-      console.log('✅ Twilio inicializado com sucesso');
+      logger.info('Twilio initialized successfully');
     } catch (error) {
-      console.error('❌ Erro ao inicializar Twilio:', error.message);
+      logger.error('Error initializing Twilio', error.message);
       this.client = null;
     }
   }

@@ -39,7 +39,8 @@ CREATE INDEX IF NOT EXISTS idx_encryption_audit_table ON encryption_audit(table_
 
 async function runEncryptionMigrations() {
   try {
-    console.log('Running encryption migrations...');
+    const logger = require('../utils/logger');
+    logger.info('Running encryption migrations...');
     const statements = ENCRYPTION_MIGRATIONS.split(';')
       .map((stmt) => stmt.trim())
       .filter((stmt) => stmt.length > 0);

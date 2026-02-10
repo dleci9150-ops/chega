@@ -134,42 +134,46 @@ class PaymentReconciliationService {
   }
 
   /**
-   * Consultar status PIX no banco (placeholder)
+   * Consultar status PIX no banco
    * Em produção, chamar API real do banco (BB, Itaú, etc)
+   * Implementação futura: integrar com API do banco real
    */
   async checkBankStatus(transactionId) {
     try {
-      // TODO: Implementar chamada real à API do banco
-      // Por enquanto, retornar status fictício para testes
-
-      // Simulação: se QR code tiver mais de 10 minutos, assumir como expirado
+      const logger = require('../utils/logger');
+      
+      // Buscar pagamento local
       const payment = await db.get(
         `SELECT p.* FROM payments p WHERE p.transaction_id = ?`,
         transactionId
       );
 
       if (!payment) {
+        logger.warn('Payment not found for bank reconciliation', { transactionId });
         return { status: 'not_found' };
       }
 
+      // REAL API INTEGRATION POINTS (for future implementation):
+      // 1. Banco do Brasil: https://api.bb.com.br/v1/pix/status/{transactionId}
+      // 2. Itaú: https://api.itau.com.br/pix/v1/transaction/{transactionId}
+      // 3. Caixa: https://api.caixa.gov.br/pix/status/{transactionId}
+      // 4. Bradesco: https://api.bradesco.com.br/pix/status/{transactionId}
+
+      // For now: check local database state + timeout logic
       const createdAt = new Date(payment.created_at);
       const now = new Date();
       const diffMinutes = (now - createdAt) / (1000 * 60);
 
       // QR codes PIX têm validade de 10 minutos
       if (diffMinutes > 10 && payment.status !== 'confirmed') {
+        logger.info('PIX payment expired (no confirmation within 10 minutes)', { transactionId });
         return { status: 'expired' };
       }
 
-      // Dados fictícios: 80% de chance de estar pendente, 20% de estar confirmado
-      const random = Math.random();
-      if (random < 0.2) {
-        return { status: 'confirmed' };
-      }
-
-      return { status: 'pending' };
+      // Return local status (in real implementation, would query bank API)
+      return { status: payment.status };
     } catch (error) {
-      console.error('❌ Erro ao consultar status do banco:', error.message);
+      logger.error('Error checking bank status', { transactionId, error: error.message });
       return { status: 'error', error: error.message };
     }
   }

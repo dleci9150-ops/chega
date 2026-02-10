@@ -173,12 +173,54 @@ class BackgroundJobScheduler {
    */
   async jobSendNotifications() {
     try {
-      // TODO: Implementar lógica de envio de notificações pendentes
-      // Por exemplo: lembretes de agendamento, confirmações atrasadas, etc
+      const logger = require('../utils/logger');
+      const EmailService = require('./EmailService');
+      const TwilioService = require('./TwilioService');
 
-      console.log('📬 Verificando notificações pendentes...');
-      return { success: true, notificationsSent: 0 };
+      // Buscar notificações pendentes da tabela notifications
+      const notifications = db.all(
+        `SELECT * FROM notifications 
+         WHERE sent = 0 AND scheduled_for <= datetime('now')
+         ORDER BY scheduled_for ASC
+         LIMIT 100`
+      );
+
+      if (!notifications || notifications.length === 0) {
+        logger.debug('No pending notifications to send');
+        return { success: true, notificationsSent: 0 };
+      }
+
+      let sent = 0;
+      let failed = 0;
+
+      for (const notification of notifications) {
+        try {
+          // Send based on type
+          if (notification.type === 'email') {
+            await EmailService.send(notification.recipient, notification.subject, notification.body);
+          } else if (notification.type === 'sms') {
+            await TwilioService.sendSMS(notification.recipient, notification.body);
+          } else if (notification.type === 'whatsapp') {
+            await TwilioService.sendWhatsApp(notification.recipient, notification.body);
+          }
+
+          // Mark as sent
+          db.run(
+            'UPDATE notifications SET sent = 1, sent_at = datetime("now") WHERE id = ?',
+            [notification.id]
+          );
+
+          sent++;
+        } catch (error) {
+          logger.warn(`Failed to send notification ${notification.id}:`, error.message);
+          failed++;
+        }
+      }
+
+      logger.info('Background job: notifications sent', { sent, failed, total: notifications.length });
+      return { success: true, notificationsSent: sent, failed };
     } catch (error) {
+      logger.error('Error in jobSendNotifications:', error.message);
       return { success: false, error: error.message };
     }
   }

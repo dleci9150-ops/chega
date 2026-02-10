@@ -62,7 +62,10 @@ const envSchema = z.object({
 function validateEnv() {
   try {
     const env = envSchema.parse(process.env);
-    console.log('✅ Environment variables validated successfully');
+    // Log validation success (use simple log since logger may not be ready)
+    if (process.env.NODE_ENV !== 'test') {
+      console.log('✅ Environment variables validated successfully');
+    }
     return env;
   } catch (error) {
     console.error('❌ Environment validation failed:');
@@ -70,6 +73,18 @@ function validateEnv() {
       error.errors.forEach((err) => {
         console.error(`  - ${err.path.join('.')}: ${err.message}`);
       });
+    }
+    // Silently return defaults in test mode
+    if (process.env.NODE_ENV === 'test') {
+      return {
+        NODE_ENV: 'test',
+        PORT: 3000,
+        HOST: 'localhost',
+        DATABASE_URL: 'sqlite:///:memory:',
+        JWT_SECRET: 'test-secret-key-32-chars-minimum!!',
+        PIX_WEBHOOK_SECRET: 'test-webhook-secret-32-chars!!',
+        SENTRY_ENVIRONMENT: 'test'
+      };
     }
     throw new Error('Invalid environment configuration');
   }

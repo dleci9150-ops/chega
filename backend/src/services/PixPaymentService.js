@@ -65,8 +65,9 @@ class PixPaymentService {
         }
       };
     } catch (error) {
-      console.error('Erro ao criar pagamento PIX:', error);
-      throw new Error('Falha ao criar pagamento PIX: ' + error.message);
+      const logger = require('../utils/logger');
+      logger.error('Error creating PIX payment', { bookingId: this?.bookingId, error: error.message });
+      throw new Error('Failed to create PIX payment: ' + error.message);
     }
   }
 

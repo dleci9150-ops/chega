@@ -12,7 +12,7 @@ const {
 } = require('../../dto');
 const { asyncHandler } = require('../../middleware/globalErrorHandler');
 const { authenticateToken, authorizeRole } = require('../../middleware/auth');
-const mainRoutes = require('./api');
+const mainRoutes = require('../api');
 
 /**
  * V2 enhancements:

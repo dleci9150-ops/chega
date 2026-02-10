@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 
 // Redirecionar v1 routes para v2 (com deprecation warning)
-const mainRoutes = require('./api');
+const mainRoutes = require('../api');
 
 router.use('/', (req, res, next) => {
   res.setHeader('Deprecation', 'true');
