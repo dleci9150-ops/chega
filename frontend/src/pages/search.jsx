@@ -1,4 +1,3 @@
-import React from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -28,8 +27,8 @@ export default function SearchPage() {
           <h2 className="text-xl font-semibold mb-3">Serviços</h2>
           <ul className="space-y-2">
             <li>
-              <Link href="/servicos">
-                <a className="text-primary-600 hover:underline">Ver lista de serviços</a>
+              <Link href="/servicos" className="text-primary-600 hover:underline">
+                Ver lista de serviços
               </Link>
             </li>
           </ul>
@@ -39,8 +38,8 @@ export default function SearchPage() {
           <h2 className="text-xl font-semibold mb-3">Perguntas Frequentes</h2>
           <ul className="space-y-2">
             <li>
-              <Link href="/#faq">
-                <a className="text-primary-600 hover:underline">Ir para FAQ</a>
+              <Link href="/#faq" className="text-primary-600 hover:underline">
+                Ir para FAQ
               </Link>
             </li>
           </ul>
@@ -52,8 +51,8 @@ export default function SearchPage() {
         </section>
 
         <div className="mt-12">
-          <Link href="/">
-            <a className="text-sm text-gray-500 hover:underline">Voltar para a página inicial</a>
+          <Link href="/" className="text-sm text-gray-500 hover:underline">
+            Voltar para a página inicial
           </Link>
         </div>
       </main>

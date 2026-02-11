@@ -223,8 +223,8 @@ export default function AdminDashboard() {
                           </select>
                         </td>
                         <td className="px-4 py-2 text-center">
-                          <Link href={`/admin/bookings/${booking.id}`}>
-                            <a className="text-blue-400 hover:text-blue-300">Ver →</a>
+                          <Link href={`/admin/bookings/${booking.id}`} className="text-blue-400 hover:text-blue-300">
+                            Ver →
                           </Link>
                         </td>
                       </tr>

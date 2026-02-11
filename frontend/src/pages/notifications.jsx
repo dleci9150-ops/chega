@@ -6,7 +6,7 @@
 import React, { useState, useContext } from 'react';
 import Head from 'next/head';
 import { AuthContext } from '@/context/AuthContext';
-import { NotificationPreferences } from '@/components/NotificationPreferences';
+import NotificationPreferences from '@/components/NotificationPreferences';
 
 export default function NotificationsPage() {
   const { user } = useContext(AuthContext);

@@ -178,10 +178,8 @@ export default function Servicos() {
                   </p>
 
                   {/* CTA Button */}
-                  <Link href="/agendar">
-                    <div className="block w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-center hover:shadow-lg hover:scale-105 transition-all">
-                      Agendar Serviço
-                    </div>
+                  <Link href="/agendar" className="block w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-center hover:shadow-lg hover:scale-105 transition-all">
+                    Agendar Serviço
                   </Link>
                 </div>
 
@@ -227,11 +225,9 @@ export default function Servicos() {
             </div>
 
             <div className="text-center mt-8">
-              <Link href="/agendar">
-                <div className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg hover:scale-105 transition-all">
-                  <span>💬</span>
-                  Solicitar Orçamento Custom
-                </div>
+              <Link href="/agendar" className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg hover:scale-105 transition-all">
+                <span>💬</span>
+                Solicitar Orçamento Custom
               </Link>
             </div>
           </div>
@@ -269,11 +265,9 @@ export default function Servicos() {
           <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">
             Agende seu serviço agora e receba 10% de desconto na primeira limpeza
           </p>
-          <Link href="/agendar">
-            <div className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg hover:scale-105 transition-all">
-              <span>📅</span>
-              Agendar Agora
-            </div>
+          <Link href="/agendar" className="inline-flex items-center gap-2 px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg hover:scale-105 transition-all">
+            <span>📅</span>
+            Agendar Agora
           </Link>
         </section>
       </main>

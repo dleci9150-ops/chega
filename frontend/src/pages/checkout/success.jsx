@@ -92,22 +92,16 @@ export default function CheckoutSuccess() {
         </div>
 
         <div className="space-y-3">
-          <Link href="/agendar">
-            <a className="block w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:shadow-lg transition">
+          <Link href="/agendar" className="block w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-lg hover:shadow-lg transition">
               📅 Agendar Agora
-            </a>
           </Link>
 
-          <Link href="/dashboard">
-            <a className="block w-full px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">
+          <Link href="/dashboard" className="block w-full px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition">
               📊 Minha Conta
-            </a>
           </Link>
 
-          <Link href="/">
-            <a className="text-green-600 hover:text-green-700 font-semibold">
+          <Link href="/" className="text-green-600 hover:text-green-700 font-semibold">
               ← Voltar à home
-            </a>
           </Link>
         </div>
 

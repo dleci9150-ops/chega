@@ -24,9 +24,7 @@ export default function MobileTopBar() {
 
           <div className="flex items-center gap-3">
             <SiteSearch />
-            <Link href="/agendar">
-              <a className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold">📅 Agendar</a>
-            </Link>
+            <Link href="/agendar" className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-semibold">📅 Agendar</Link>
           </div>
         </div>
       </header>

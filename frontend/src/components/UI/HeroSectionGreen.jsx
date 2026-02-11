@@ -56,17 +56,13 @@ export default function HeroSectionGreen() {
 
             {/* CTAs principais */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href="/agendar">
-                <a className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group">
+              <Link href="/agendar" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 group">
                   Agendar Agora
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1" />
-                </a>
               </Link>
-              <Link href="#servicos">
-                <a className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-primary-500 text-primary-600 font-semibold rounded-xl hover:bg-primary-50 transition-all duration-300 shadow-md hover:shadow-lg group">
+              <Link href="#servicos" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white border-2 border-primary-500 text-primary-600 font-semibold rounded-xl hover:bg-primary-50 transition-all duration-300 shadow-md hover:shadow-lg group">
                   Ver Serviços
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1" />
-                </a>
               </Link>
             </div>
 

@@ -71,8 +71,10 @@ export default function MyApp({ Component, pageProps }) {
               <LoyaltyProvider>
                 <NotificationSystem />
                   <FloatingNavTools />
-                <div className="min-h-[100vh] mobile-only pb-20">
-                  <MobileTopBar />
+                <div className="min-h-[100vh] pb-20">
+                  <div className="mobile-only">
+                    <MobileTopBar />
+                  </div>
                   <div className="pt-16">
                     <Component {...pageProps} />
                   </div>

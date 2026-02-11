@@ -219,8 +219,8 @@ export default function CTANewsletter() {
                         className="text-xs text-gray-500 dark:text-gray-400 text-center"
                       >
                         Ao inscrever-se, você concorda com nossa{' '}
-                        <Link href="/privacy">
-                          <span className="text-blue-600 hover:underline cursor-pointer">Política de Privacidade</span>
+                        <Link href="/privacy" className="text-blue-600 hover:underline cursor-pointer">
+                          Política de Privacidade
                         </Link>
                       </motion.p>
                     </form>

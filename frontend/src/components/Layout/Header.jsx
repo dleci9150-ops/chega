@@ -13,18 +13,17 @@ export default function Header() {
   const navLinks = [
     { href: '/', label: 'Home', icon: '🏠' },
     { href: '/servicos', label: 'Serviços', icon: '✨' },
+    { href: '/register', label: 'Criar Conta', icon: '🔐' },
     { href: '/#como_funciona', label: 'Como Funciona', icon: '🔄', isAnchor: true },
-    { href: '/#pacotes', label: 'Pacotes', icon: '🎁', isAnchor: true },
     { href: '/dashboard', label: 'Minha Conta', icon: '👤' }
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 shadow-sm desktop-only">
+    <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 sm:h-24">
           {/* Logo + Brand with Theme Image */}
-          <Link href="/">
-            <div className="flex items-center gap-3 hover:opacity-90 transition-opacity group">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity group">
               {/* Brand Image - Circular with Border */}
               <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-2xl overflow-hidden border-2 border-slate-300 dark:border-slate-600 hover:border-cyan-500 transition-all">
                 <Image 
@@ -46,17 +45,14 @@ export default function Header() {
                   Limpeza Profissional Premium
                 </p>
               </div>
-            </div>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-2">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <div className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-medium flex items-center gap-2 group">
+              <Link key={link.href} href={link.href} className="px-4 py-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-medium flex items-center gap-2 group">
                   <span className="group-hover:scale-125">{link.icon}</span>
                   {link.label}
-                </div>
               </Link>
             ))}
           </nav>
@@ -67,11 +63,9 @@ export default function Header() {
           {/* Right Actions */}
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeSelector />
-            <Link href="/HourCheckout">
-              <div className="hidden sm:inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg text-white transition-all font-bold text-sm shadow-lg">
+            <Link href="/HourCheckout" className="hidden sm:inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg text-white transition-all font-bold text-sm shadow-lg">
                 <span>💰</span>
                 Comprar Horas
-              </div>
             </Link>
 
             {/* Mobile Menu Toggle */}
@@ -92,23 +86,19 @@ export default function Header() {
         {isMobileMenuOpen && (
           <nav className="lg:hidden pb-4 space-y-2 border-t border-slate-200 dark:border-slate-700/30 pt-4 animate-in fade-in slide-up">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <div 
+              <Link key={link.href} href={link.href} 
                   className="block px-4 py-3 text-slate-700 dark:text-slate-300 hover:bg-green-50 dark:hover:bg-slate-800 rounded-lg transition-colors font-medium flex items-center gap-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span>{link.icon}</span>
                   {link.label}
-                </div>
               </Link>
             ))}
-            <Link href="/HourCheckout">
-              <div 
+            <Link href="/HourCheckout" 
                 className="block px-4 py-3 mt-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-bold text-center hover:shadow-lg transition-all"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 💰 Comprar Horas Agora
-              </div>
             </Link>
           </nav>
         )}

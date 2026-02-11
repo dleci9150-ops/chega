@@ -1,5 +1,5 @@
 /**
- * decoded.jsx
+ * NotificationPreferences.jsx
  * User notification preferences component
  */
 
@@ -7,7 +7,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { apiCall } from '@/config/api';
 
-export default function decodeToken() {
+export default function NotificationPreferences() {
   const { user } = useContext(AuthContext);
   const [preferences, setPreferences] = useState({
     email_enabled: true,

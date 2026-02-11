@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
+import { useAuth } from '../context/AuthContext';
 import { LoyaltyCard } from '../components/UI/LoyaltySystem';
 import ReferralSystem from '../components/UI/ReferralSystem';
 
@@ -9,6 +10,17 @@ import ReferralSystem from '../components/UI/ReferralSystem';
  */
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('bookings');
+  const { user, logout } = useAuth();
+
+  // Resolve user profile: context -> localStorage -> fallback
+  const [userProfile, setUserProfile] = useState(null);
+  useEffect(() => {
+    let stored = null;
+    try {
+      if (typeof window !== 'undefined') stored = JSON.parse(localStorage.getItem('user') || 'null');
+    } catch (e) { stored = null }
+    setUserProfile(user || stored || null);
+  }, [user]);
 
   // Mock data
   const bookings = [
@@ -44,16 +56,19 @@ export default function Dashboard() {
     }
   ];
 
-  const userProfile = {
-    name: 'João Silva',
-    email: 'joao@example.com',
-    phone: '+55 51 98030-3740',
-    address: 'Porto Alegre, RS',
-    joinDate: '2023-10-15',
-    totalBookings: 8,
-    totalSpent: 'R$ 1.200,00',
-    rating: 4.8
+  const fallbackProfile = {
+    name: 'Visitante',
+    email: '',
+    phone: '',
+    address: '',
+    joinDate: new Date().toISOString(),
+    totalBookings: 0,
+    totalSpent: 'R$ 0,00',
+    rating: 0,
+    role: 'cliente'
   };
+
+  const profile = userProfile || fallbackProfile;
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -88,17 +103,15 @@ export default function Dashboard() {
         {/* Header */}
         <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <Link href="/">
-              <div className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold text-2xl">
                   🧹
                 </div>
                 <h1 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                   Leidy Cleaner
                 </h1>
-              </div>
             </Link>
-            <button className="px-6 py-2 rounded-lg bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 font-bold hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors">
+            <button onClick={async () => { try { await logout(); } catch(e){} finally { try { localStorage.removeItem('token'); localStorage.removeItem('user'); } catch(e){} window.location.href = '/'; } }} className="px-6 py-2 rounded-lg bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 font-bold hover:bg-red-200 dark:hover:bg-red-900/30 transition-colors">
               Sair
             </button>
           </div>
@@ -108,7 +121,7 @@ export default function Dashboard() {
           {/* Welcome Section */}
           <div className="mb-12">
             <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-2">
-              Bem-vindo, {userProfile.name}! 👋
+              Bem-vindo, {profile.name}! 👋
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
               Gerencie seus agendamentos e perfil abaixo
@@ -267,10 +280,8 @@ export default function Dashboard() {
                     </div>
                   ))}
 
-                  <Link href="/agendar">
-                    <div className="block w-full px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-center hover:shadow-lg hover:scale-105 transition-all">
+                  <Link href="/agendar" className="block w-full px-8 py-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-center hover:shadow-lg hover:scale-105 transition-all">
                       + Agendar Novo Serviço
-                    </div>
                   </Link>
                 </>
               ) : (
@@ -282,11 +293,9 @@ export default function Dashboard() {
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
                     Você ainda não tem nenhum agendamento. Faça seu primeiro agora!
                   </p>
-                  <Link href="/agendar">
-                    <div className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg transition-all">
+                  <Link href="/agendar" className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg transition-all">
                       <span>📅</span>
                       Agendar Serviço
-                    </div>
                   </Link>
                 </div>
               )}

@@ -135,15 +135,11 @@ export default function Agendar() {
                 <p className="text-2xl font-bold text-blue-600">{phone}</p>
               </div>
               <div className="flex gap-4 justify-center">
-                <Link href="/">
-                  <div className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg transition-all">
-                    ← Voltar ao Home
-                  </div>
+                <Link href="/" className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold hover:shadow-lg transition-all">
+                  ← Voltar ao Home
                 </Link>
-                <Link href="/servicos">
-                  <div className="px-8 py-3 rounded-lg bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white font-bold hover:shadow-lg transition-all">
-                    Ver Serviços →
-                  </div>
+                <Link href="/servicos" className="px-8 py-3 rounded-lg bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white font-bold hover:shadow-lg transition-all">
+                  Ver Serviços →
                 </Link>
               </div>
             </div>
